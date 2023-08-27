@@ -9,6 +9,7 @@ function EventList(props) {
         <ul className={styles.list}>
             {items.map((item) => (
                 <EventItem
+                    key={item.id}
                     id={item.id}
                     title={item.title}
                     location={item.location}
