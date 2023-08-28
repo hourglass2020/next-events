@@ -6,6 +6,7 @@ import { getFilteredEvents } from "@/helpers/api-util";
 import { useRouter } from "next/router";
 import React, { Fragment, useEffect, useState } from "react";
 import useSWR from "swr";
+import Head from 'next/head';
 
 export default function FilteredEventPage(props) {
     const [loadedEvents, setLoadedEvents] = useState([]);
@@ -31,8 +32,15 @@ export default function FilteredEventPage(props) {
         }
     }, [data]);
 
+    let pageHeadData;
+
     if (!loadedEvents) {
-        return <p className="center">Loading...</p>;
+        return (
+            <>
+                {pageHeadData}
+                <p className="center">Loading...</p>;
+            </>
+        );
     }
 
     const filteredYear = filteredData[0];
@@ -40,6 +48,13 @@ export default function FilteredEventPage(props) {
 
     const numYear = +filteredYear;
     const numMonth = +filteredMonth;
+
+    pageHeadData = (
+        <Head>
+            <title>Filtered Events</title>
+            <meta name='description' content='filtered events for you!' />
+        </Head>
+    );
 
     if (
         isNaN(numYear) ||
@@ -50,9 +65,12 @@ export default function FilteredEventPage(props) {
         numMonth > 12
     ) {
         return (
-            <ErrorAlert>
-                <p>Invalid filter. Please adjust your values.</p>
-            </ErrorAlert>
+            <>
+                {pageHeadData}
+                <ErrorAlert>
+                    <p>Invalid filter. Please adjust your values.</p>
+                </ErrorAlert>
+            </>
         );
     }
 
@@ -64,11 +82,10 @@ export default function FilteredEventPage(props) {
         );
     });
 
-    console.log(loadedEvents);
-
     if (!filteredEvents || filteredEvents.length === 0) {
         return (
             <Fragment>
+                {pageHeadData}
                 <ErrorAlert>No events found for chosen filter!</ErrorAlert>
                 <div className="center">
                     <Button link={"/events"}>Show All Events</Button>
@@ -81,6 +98,8 @@ export default function FilteredEventPage(props) {
 
     return (
         <>
+            {pageHeadData}
+
             <ResultsTitle date={date} />
             <EventList items={filteredEvents} />
         </>
