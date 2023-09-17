@@ -1,7 +1,9 @@
-import { useRef } from 'react';
-import classes from './newsletter-registration.module.css';
+import { useContext, useRef } from "react";
+import classes from "./newsletter-registration.module.css";
+import NotificationContext from "@/store/notification-context";
 
 function NewsletterRegistration() {
+    const { showNotification } = useContext(NotificationContext);
     const emailInputRef = useRef();
 
     function registrationHandler(event) {
@@ -9,13 +11,34 @@ function NewsletterRegistration() {
 
         const enteredEmail = emailInputRef.current.value;
 
-        fetch('api/newsletter', {
+        showNotification({
+            title: "Loading...",
+            message: "Registering for new acount.",
+            status: "pending",
+        });
+
+        fetch("api/newsletter", {
             method: "POST",
             body: JSON.stringify({ email: enteredEmail }),
             headers: {
-                'Content-Type': 'application/json'
-            }
-        }).then(res => res.json()).then(data => console.log(data));
+                "Content-Type": "application/json",
+            },
+        })
+            .then((res) => res.json())
+            .then((data) =>
+                showNotification({
+                    title: "Success!",
+                    message: "Registered Successfully!",
+                    status: "success",
+                })
+            )
+            .catch((error) =>
+                showNotification({
+                    title: "Error!",
+                    message: "Try Again!",
+                    status: "error",
+                })
+            );
     }
 
     return (
@@ -24,10 +47,10 @@ function NewsletterRegistration() {
             <form onSubmit={registrationHandler}>
                 <div className={classes.control}>
                     <input
-                        type='email'
-                        id='email'
-                        placeholder='Your email'
-                        aria-label='Your email'
+                        type="email"
+                        id="email"
+                        placeholder="Your email"
+                        aria-label="Your email"
                         ref={emailInputRef}
                     />
                     <button>Register</button>

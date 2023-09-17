@@ -1,11 +1,14 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 
 import CommentList from "./comment-list";
 import NewComment from "./new-comment";
 import classes from "./comments.module.css";
+import NotificationContext from "@/store/notification-context";
 
 function Comments(props) {
     const { eventId } = props;
+
+    const { showNotification, hideNotification } = useContext(NotificationContext);
 
     const [comments, setComments] = useState([]);
     const [showComments, setShowComments] = useState(false);
@@ -23,6 +26,12 @@ function Comments(props) {
     }
 
     function addCommentHandler(commentData) {
+        showNotification({
+            title: "Loading...",
+            message: "Loading event's comments.",
+            status: "pending",
+        });
+
         fetch(`/api/comments/${eventId}`, {
             method: "POST",
             body: JSON.stringify(commentData),
@@ -31,7 +40,20 @@ function Comments(props) {
             },
         })
             .then((res) => res.json())
-            .then((data) => console.log(data));
+            .then((data) =>
+                showNotification({
+                    title: "Success!",
+                    message: "Loaded Successfully!",
+                    status: "success",
+                })
+            )
+            .catch((error) =>
+                showNotification({
+                    title: "Error!",
+                    message: "Try Again!",
+                    status: "error",
+                })
+            );
     }
 
     return (
